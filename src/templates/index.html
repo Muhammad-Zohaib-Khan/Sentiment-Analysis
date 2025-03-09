@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analyzer</title>
+    <link rel='stylesheet' href="{{url_for('static',filename='style.css')}}">
+    <link rel="icon" type="image/x-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwbMjh3TGUqiIjRuhqPNFQBqJADhrs9zDpbA&s">
+    <meta http-equiv="refresh" content="2000">
+    <meta name="keywords" content="Cloudword, Sentiment Analysis, Flask, Python">
+    <meta name="description" content="I analyze text and classified them into positive or negative class with cloudword">
+</head>
+<body>
+    <div class="container">
+        <h1 class="focus-in-expand-fwd">Sentiment Analyzer</h1>
+        <form id="sentiment_form">
+            <textarea name="text" id ="input_text" placeholder="Enter the text here"></textarea>
+            <button class="btn-grad" type="submit">Analyze</button>
+        </form>
+        <div id="result"></div>
+        <div id="wordcloud"></div>
+    </div>
+    <script>
+        let result_div=document.getElementById("result")
+        let wordcloud_div=document.getElementById("wordcloud")
+        document.getElementById("sentiment_form").addEventListener('submit',async event=>{
+            event.preventDefault()
+            const text=document.getElementById('input_text').value
+            let response=await fetch("/analyze", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({mdata:text}) })
+            const data=await response.json()
+            if (data.sentiment===1){
+                result_div.textContent=`Positive 😊 (Confidence: ${(data.confidence*100).toFixed(2)}%)`
+                result_div.style.color="green";
+            }else{
+                result_div.textContent=`Negative 😠 (Confidence: ${(data.confidence*100).toFixed(2)}%)`
+                result_div.style.color="red";
+            }
+
+                // Display word cloud
+                wordcloud_div.innerHTML = `<img src="data:image/png;base64,${data.wordcloud}" alt="Word Cloud">`;
+
+        })
+     </script>
+</body>
+</html>
